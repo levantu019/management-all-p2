@@ -16,6 +16,18 @@ const SearchResultTab = ({ collapsed }) => {
   const [ai2ShowAll, setAi2ShowAll] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState('results1');
 
+  // Separate visibility states for each tab - "select all" buttons
+  const [allVisibleResults1, setAllVisibleResults1] = useState(false);
+  const [allVisibleResults2, setAllVisibleResults2] = useState(false);
+
+  // Separate individual image visibility states for each tab
+  const [imageVisibilityResults1, setImageVisibilityResults1] = useState({});
+  const [imageVisibilityResults2, setImageVisibilityResults2] = useState({});
+
+  // Separate flying states for each tab
+  const [flyingImageIdResults1, setFlyingImageIdResults1] = useState(null);
+  const [flyingImageIdResults2, setFlyingImageIdResults2] = useState(null);
+
   // Mock image data
   const mockImages = [
     {
@@ -50,35 +62,74 @@ const SearchResultTab = ({ collapsed }) => {
     },
     {
       id: 4,
-      name: 'Urban Analysis 003',
-      time: '2024-08-18 16:22:33',
-      coordinates: '21.0312, 105.8612',
-      resolution: '2m',
-      cloudCover: '25%',
-      source: 'WorldView-3',
-      size: '5.7 MB'
+      name: 'Urban Analysis 004',
+      time: '2024-08-18 17:10:15',
+      coordinates: '21.0450, 105.8700',
+      resolution: '3m',
+      cloudCover: '10%',
+      source: 'SPOT-7',
+      size: '4.2 MB'
     },
     {
       id: 5,
-      name: 'Urban Analysis 003',
-      time: '2024-08-18 16:22:33',
-      coordinates: '21.0312, 105.8612',
-      resolution: '2m',
-      cloudCover: '25%',
-      source: 'WorldView-3',
-      size: '5.7 MB'
+      name: 'Environmental Survey 005',
+      time: '2024-08-18 18:33:44',
+      coordinates: '21.0123, 105.8400',
+      resolution: '1m',
+      cloudCover: '30%',
+      source: 'GeoEye-1',
+      size: '6.8 MB'
     },
     {
       id: 6,
-      name: 'Urban Analysis 003',
-      time: '2024-08-18 16:22:33',
-      coordinates: '21.0312, 105.8612',
-      resolution: '2m',
-      cloudCover: '25%',
-      source: 'WorldView-3',
-      size: '5.7 MB'
+      name: 'Infrastructure Map 006',
+      time: '2024-08-18 19:55:12',
+      coordinates: '21.0380, 105.8580',
+      resolution: '0.5m',
+      cloudCover: '8%',
+      source: 'QuickBird',
+      size: '8.1 MB'
     }
   ];
+
+  // Get current tab's visibility state and setter
+  const getCurrentTabVisibilityState = () => {
+    switch (activeResultTab) {
+      case 'results1':
+        return { 
+          allVisible: allVisibleResults1, 
+          setAllVisible: setAllVisibleResults1,
+          imageVisibility: imageVisibilityResults1,
+          setImageVisibility: setImageVisibilityResults1
+        };
+      case 'results2':
+        return { 
+          allVisible: allVisibleResults2, 
+          setAllVisible: setAllVisibleResults2,
+          imageVisibility: imageVisibilityResults2,
+          setImageVisibility: setImageVisibilityResults2
+        };
+      default:
+        return { 
+          allVisible: allVisibleResults1, 
+          setAllVisible: setAllVisibleResults1,
+          imageVisibility: imageVisibilityResults1,
+          setImageVisibility: setImageVisibilityResults1
+        };
+    }
+  };
+
+  // Get current tab's flying state and setter
+  const getCurrentTabFlyingState = () => {
+    switch (activeResultTab) {
+      case 'results1':
+        return { flyingImageId: flyingImageIdResults1, setFlyingImageId: setFlyingImageIdResults1 };
+      case 'results2':
+        return { flyingImageId: flyingImageIdResults2, setFlyingImageId: setFlyingImageIdResults2 };
+      default:
+        return { flyingImageId: flyingImageIdResults1, setFlyingImageId: setFlyingImageIdResults1 };
+    }
+  };
 
   if (collapsed) {
     return (
@@ -110,6 +161,8 @@ const SearchResultTab = ({ collapsed }) => {
           mockImages={mockImages}
           activeResultTab={activeResultTab}
           setActiveResultTab={setActiveResultTab}
+          tabVisibilityState={getCurrentTabVisibilityState()}
+          tabFlyingState={getCurrentTabFlyingState()}
         />
       </div>
     </div>
