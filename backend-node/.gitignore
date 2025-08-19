@@ -1,0 +1,49 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+logs/*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Runtime data
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Database dumps
+# *.sql
+# *.sqlite
+# *.sqlite3
+# *.db
+
+# IDE/project files
+.vscode/
+.idea/
+*.iml
+
+# Optional: If using Docker
+docker-compose.override.yml
