@@ -1,12 +1,14 @@
 require('dotenv').config();
-const { Pool } = require('pg');
+const { Sequelize } = require('sequelize');
 
-export const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  max: 10, // optional: maximum number of clients in the pool
-  idleTimeoutMillis: 30000 // optional: close idle clients after 30 seconds
+const sequelize = new Sequelize({
+  dialect: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'management_db',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  logging: false, // Set to console.log to see SQL queries
 });
+
+module.exports = sequelize;

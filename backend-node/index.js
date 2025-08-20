@@ -11,6 +11,9 @@ app.use(express.json());
 // Account
 app.use("/api/accounts", require("./routes/accountRoutes"));
 
+// Area
+app.use("/api/areas", require("./routes/areaRoutes"));
+
 //
 app.listen(PORT, () => {
     console.log(`Port ${PORT} is running`)
