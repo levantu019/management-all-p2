@@ -8,15 +8,8 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// Simple route
-app.get("/", (req, res) => {
-    res.send("Hello World from Me!");
-});
-
-// Example API endpoint
-app.get("/api/users", (req, res) => {
-    res.json([{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }]);
-});
+// Account
+app.use("/api/accounts", require("./routes/accountRoutes"));
 
 //
 app.listen(PORT, () => {
