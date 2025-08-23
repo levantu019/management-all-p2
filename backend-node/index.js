@@ -10,6 +10,9 @@ app.use(express.json());
 
 // Account
 app.use("/api/accounts", require("./routes/accountRoutes"));
+app.use("/api/areas", require("./routes/areaRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
+app.use("/api/targets", require("./routes/targetRoutes"));
 
 //
 app.listen(PORT, () => {

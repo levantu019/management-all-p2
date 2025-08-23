@@ -1,25 +1,94 @@
-const { DataTypes } = require("sequelize");
-module.exports = (sequelize) => {
-    return sequelize.define(
-        "Target",
+const db = require("../database");
+
+// Target Model
+const Target = {
+    async getAll() {
+        const res = await db.query(
+            "SELECT id, name, coordinate, boundary, date_created, type, icon, general_information, parent_id FROM target"
+        );
+        return res.rows;
+    },
+
+    async getById(id) {
+        const res = await db.query(
+            "SELECT id, name, coordinate, boundary, date_created, type, icon, general_information, parent_id FROM target WHERE id = $1",
+            [id]
+        );
+        return res.rows[0];
+    },
+
+    async getByCategory(category_id) {
+        const res = await db.query(
+            `SELECT b.*
+                FROM target b
+                INNER JOIN target_category c ON b.id = c.target_id
+                INNER JOIN category a ON a.id = c.category_id
+                WHERE a.id = $1`,
+            [category_id]
+        );
+        return res.rows;
+    },
+
+    async create({
+        name,
+        coordinate,
+        boundary,
+        type,
+        icon,
+        general_information,
+        parent_id,
+    }) {
+        const res = await db.query(
+            `INSERT INTO target (name, coordinate, boundary, type, icon, general_information, parent_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING id, name, coordinate, boundary, date_created, type, icon, general_information, parent_id`,
+            [
+                name,
+                coordinate,
+                boundary,
+                type,
+                icon,
+                general_information,
+                parent_id,
+            ]
+        );
+        return res.rows[0];
+    },
+
+    async update(
+        id,
         {
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true,
-            },
-            name: { type: DataTypes.STRING(255), allowNull: false },
-            coordinate: { type: DataTypes.GEOMETRY("POINT", 4326) },
-            boundary: { type: DataTypes.GEOMETRY("POLYGON", 4326) },
-            date_created: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-            type: {
-                type: DataTypes.ENUM("static", "dynamic", "other"),
-                allowNull: false,
-            },
-            icon: { type: DataTypes.STRING(255) },
-            general_information: { type: DataTypes.TEXT },
-            target_id: { type: DataTypes.INTEGER },
-        },
-        { tableName: "Target", timestamps: false }
-    );
+            name,
+            coordinate,
+            boundary,
+            type,
+            icon,
+            general_information,
+            parent_id,
+        }
+    ) {
+        const res = await db.query(
+            `UPDATE target SET name=$1, coordinate=$2, boundary=$3, type=$4, icon=$5, general_information=$6, parent_id=$7
+             WHERE id=$8
+             RETURNING id, name, coordinate, boundary, date_created, type, icon, general_information, parent_id`,
+            [
+                name,
+                coordinate,
+                boundary,
+                type,
+                icon,
+                general_information,
+                parent_id,
+                id,
+            ]
+        );
+        return res.rows[0];
+    },
+
+    async delete(id) {
+        await db.query("DELETE FROM target WHERE id=$1", [id]);
+        return { message: "Deleted" };
+    },
 };
+
+module.exports = Target;

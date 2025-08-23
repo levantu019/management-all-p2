@@ -1,16 +1,17 @@
 // Libraries
 import React from 'react';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 // Personal components
 
 
-// Sidebar Loading Component
-const SidebarLoading = ({ collapsed }) => {
+// Loading Effect Component
+const LoadingEffect = ({ collapsed }) => {
   return (
     <div className="p-4 space-y-3">
       {!collapsed && (
         <div className="text-sm text-gray-500 text-center mb-4">
-          Đang tải menu...
+          Đang tải dữ liệu...
         </div>
       )}
       {[1, 2, 3, 4].map((i) => (
@@ -25,4 +26,12 @@ const SidebarLoading = ({ collapsed }) => {
   );
 };
 
-export default SidebarLoading
+//
+const LoadingOverlay = ({ message = "Loading data..." }) => (
+    <div className="flex items-center justify-center p-8">
+        <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" />
+        <span className="ml-3 text-gray-600">{message}</span>
+    </div>
+);
+
+export { LoadingOverlay, LoadingEffect };

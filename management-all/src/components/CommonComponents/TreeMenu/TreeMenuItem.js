@@ -1,11 +1,12 @@
 // Libraries
 import React from 'react';
+import { Layers } from 'lucide-react';
 
 // Personal components
 
 
-// Sidebar Menu Item Component
-const SidebarMenuItem = ({
+// Tree Menu Item Component
+const TreeMenuItem = ({
   item,
   depth = 0,
   collapsed,
@@ -14,10 +15,10 @@ const SidebarMenuItem = ({
   activeFunction,
   onFunctionChange
 }) => {
-  const IconComponent = item.icon;
+  const IconComponent = item.icon || Layers;
   const isExpanded = expandedItems[item.id];
   const hasChildren = item.children && item.children.length > 0;
-  const isActive = activeFunction === item.id;
+  const isActive = activeFunction === item.id_active;
 
   return (
     <div key={item.id} className={`${depth > 0 ? 'ml-4' : ''}`}>
@@ -28,16 +29,16 @@ const SidebarMenuItem = ({
         onClick={() => {
           if (hasChildren) {
             onToggleExpanded(item.id);
-          } else if (item.type === 'function') {
-            onFunctionChange(item.id);
+          } else if (item.type_menu === 'function') {
+            onFunctionChange(item.id, item.id_active, item.type_function, item.table_name_menu, item.table_name_data, item.title_data);
           }
         }}
-        title={collapsed ? item.label : ''}
+        title={collapsed ? item.name : ''}
       >
         <IconComponent className={`w-5 h-5 ${collapsed ? '' : 'mr-3'} flex-shrink-0`} />
         {!collapsed && (
           <>
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1">{item.name}</span>
             {hasChildren && (
               <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
                 <div className="w-3 h-3 border-r-2 border-b-2 border-gray-400 transform rotate-45"></div>
@@ -49,7 +50,7 @@ const SidebarMenuItem = ({
       {!collapsed && hasChildren && isExpanded && (
         <div className="ml-2">
           {item.children.map(child => (
-            <SidebarMenuItem
+            <TreeMenuItem
               key={child.id}
               item={child}
               depth={depth + 1}
@@ -66,4 +67,4 @@ const SidebarMenuItem = ({
   );
 };
 
-export default SidebarMenuItem
+export default TreeMenuItem;

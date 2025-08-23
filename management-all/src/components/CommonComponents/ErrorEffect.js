@@ -3,10 +3,10 @@ import React from 'react';
 import { Settings } from 'lucide-react';
 
 // Personal components
+import { Button } from 'primereact/button';
 
-
-// Sidebar Error Component
-const SidebarError = ({ error, onRetry, collapsed }) => {
+// Error Effect Component
+const ErrorEffect = ({ error, onRetry, collapsed }) => {
   return (
     <div className="p-4">
       {!collapsed && (
@@ -35,4 +35,19 @@ const SidebarError = ({ error, onRetry, collapsed }) => {
   );
 };
 
-export default SidebarError
+
+//
+const ErrorDisplay = ({ error, onRetry }) => (
+    <div className="flex flex-column align-items-center justify-content-center p-4">
+        <i className="pi pi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+        <p className="text-red-600 mb-4 text-center">{error}</p>
+        <Button 
+            label="Retry" 
+            icon="pi pi-refresh" 
+            onClick={onRetry}
+            className="p-button-sm"
+        />
+    </div>
+);
+
+export { ErrorEffect, ErrorDisplay };

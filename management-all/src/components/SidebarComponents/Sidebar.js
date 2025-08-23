@@ -1,31 +1,16 @@
 // Libraries
 import React, { useState, useEffect } from "react";
-import {
-    Layers,
-    Search,
-    Filter,
-    Ruler,
-    MapPin,
-    Download,
-    Settings,
-    Pencil,
-    Eye,
-    Plane,
-    Play,
-    BarChart3,
-    Info,
-    Database,
-    FileText,
-} from "lucide-react";
+import { SquareChartGantt } from "lucide-react";
 
 // Personal components
 import SidebarHeader from "./SidebarHeader";
-import SidebarMenu from "./SidebarMenu";
-import SidebarFooter from "./SidebarFooter";
-import SidebarError from "./SidebarError";
-import SidebarLoading from "./SidebarLoading";
+import { TreeMenu } from "../CommonComponents/TreeMenu";
+import { LoadingEffect, ErrorEffect } from "../CommonComponents";
 import SearchResultTab from "./SearchResultTab";
-import MiddleExpandButton from "../Common/MiddleExpandButton";
+import { sampleMenuStructure, iconMap } from "../../constants";
+import { buildHierarchy, buildHierarchyTwoArray } from "../../utils/transformUtils";
+import { addKeysAndValues, sortArrayJsonByKey } from "../../utils/arrayUtils";
+import { apiGetMultiple } from "../../utils/apiUtils";
 
 // Sidebar Component
 const Sidebar = ({ collapsed, onToggle, activeFunction, onFunctionChange }) => {
@@ -35,162 +20,131 @@ const Sidebar = ({ collapsed, onToggle, activeFunction, onFunctionChange }) => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState("management");
 
-    // Icon mapping for API data
-    const iconMap = {
-        Settings: Settings,
-        Ruler: Ruler,
-        Pencil: Pencil,
-        Eye: Eye,
-        Play: Play,
-        Plane: Plane,
-        BarChart3: BarChart3,
-        Info: Info,
-        Layers: Layers,
-        Search: Search,
-        Database: Database,
-        FileText: FileText,
-        Download: Download,
-        Filter: Filter,
-        MapPin: MapPin,
-    };
-
-    // API call to fetch menu structure
+    // API call to fetch menu structure from backend
     const fetchMenuStructure = async () => {
         try {
             setIsLoading(true);
             setError(null);
 
-            // Simulate API delay
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            // Make API call to backend
+            const [response_area, response_category] = await apiGetMultiple([
+                "areas",
+                "categories",
+            ]);
 
-            const demoApiResponse = [
-                {
-                    id: "tool-management",
-                    icon: "Settings",
-                    label: "Quản lý công cụ",
-                    type: "group",
-                    children: [
+            // Check if response contains data
+            if (response_area.data && Array.isArray(response_area.data)) {
+                if (
+                    response_category.data &&
+                    Array.isArray(response_category.data)
+                ) {
+                    const response_area_extra = addKeysAndValues(
+                        response_area.data,
                         {
-                            id: "measure",
-                            icon: "Ruler",
-                            label: "Đo đạc",
-                            type: "function",
-                        },
+                            // id: (oldValue) => `${oldValue}_area`,
+                            id_active: "area_${id}",
+                            type_menu: "group",
+                            table_name_menu: "areas",
+                        }
+                    );
+                    const response_category_extra = addKeysAndValues(
+                        response_category.data,
                         {
-                            id: "draw",
-                            icon: "Pencil",
-                            label: "Vẽ",
-                            type: "function",
-                        },
-                        {
-                            id: "visualize",
-                            icon: "Eye",
-                            label: "Trực quan hóa",
-                            type: "group",
-                            children: [
-                                {
-                                    id: "run-viz",
-                                    icon: "Play",
-                                    label: "Chạy",
-                                    type: "function",
-                                },
-                                {
-                                    id: "fly-viz",
-                                    icon: "Plane",
-                                    label: "Bay",
-                                    type: "function",
-                                },
-                                {
-                                    id: "animate-viz",
-                                    icon: "BarChart3",
-                                    label: "Hoạt hình",
-                                    type: "function",
-                                },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    id: "info-management",
-                    icon: "Info",
-                    label: "Quản lý thông tin",
-                    type: "group",
-                    children: [
-                        {
-                            id: "layers",
-                            icon: "Layers",
-                            label: "Lớp bản đồ",
-                            type: "function",
-                        },
-                        {
-                            id: "search",
-                            icon: "Search",
-                            label: "Tìm kiếm",
-                            type: "function",
-                        },
-                        {
-                            id: "data-sources",
-                            icon: "Database",
-                            label: "Nguồn dữ liệu",
-                            type: "group",
-                            children: [
-                                {
-                                    id: "local-data",
-                                    icon: "FileText",
-                                    label: "Dữ liệu cục bộ",
-                                    type: "function",
-                                },
-                                {
-                                    id: "remote-data",
-                                    icon: "Download",
-                                    label: "Dữ liệu từ xa",
-                                    type: "function",
-                                },
-                            ],
-                        },
-                        {
-                            id: "filter",
-                            icon: "Filter",
-                            label: "Bộ lọc",
-                            type: "function",
-                        },
-                    ],
-                },
-                {
-                    id: "marker",
-                    icon: "MapPin",
-                    label: "Đánh dấu",
-                    type: "function",
-                },
-            ];
+                            // id: (oldValue) => `${oldValue}_category`,
+                            id_active: "category_${id}",
+                            type_menu: "function",
+                            type_function: "data",
+                            table_name_menu: "category",
+                            table_name_data: "target",
+                            title_data: "Danh sách mục tiêu",
+                        }
+                    );
 
-            // Transform demo data to include icon components
-            const transformedStructure = transformMenuItems(demoApiResponse);
-            setMenuStructure(transformedStructure);
+                    const combine_area_category = buildHierarchyTwoArray(
+                        response_area_extra,
+                        buildHierarchy(
+                            sortArrayJsonByKey(
+                                response_category_extra,
+                                "priority"
+                            ),
+                            "parent_id"
+                        ),
+                        "area_id"
+                    );
+
+                    setMenuStructure([
+                        {
+                            id: "target-management",
+                            icon: "Target",
+                            name: "Quản lý mục tiêu",
+                            type_menu: "group",
+                            children: combine_area_category,
+                        },
+                    ]);
+                } else throw new Error("Invalid data format received from API");
+            } else {
+                throw new Error("Invalid data format received from API");
+            }
         } catch (err) {
-            console.error("Error:", err);
-            setError("Không thể tải cấu trúc menu");
+            console.error("Error fetching menu structure:", err);
+
+            // Handle different types of errors
+            if (err.code === "ECONNABORTED") {
+                setError("Kết nối timeout. Vui lòng thử lại.");
+            } else if (err.response) {
+                // Server responded with error status
+                setError(
+                    `Lỗi server: ${err.response.status} - ${err.response.statusText}`
+                );
+            } else if (err.request) {
+                // Network error
+                setError(
+                    "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+                );
+            } else {
+                // Other errors
+                setError(err.message || "Không thể tải cấu trúc menu");
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Helper function to transform menu items
+    /**
+     * Fetches the menu structure asynchronously and concatenates it with a sample menu structure.
+     * Transforms the combined menu items before updating the state.
+     *
+     * @async
+     * @function fetchAndConcatMenu
+     * @returns {Promise<void>} Resolves when the menu structure has been fetched, concatenated, transformed, and set.
+     */
+    const fetchAndConcatMenu = async () => {
+        await fetchMenuStructure();
+        setMenuStructure((prev) => {
+            return transformMenuItems([...prev, ...sampleMenuStructure]);
+        });
+    };
+
+    // Helper function to transform menu items from API response
     const transformMenuItems = (items) => {
         return items.map((item) => ({
             ...item,
-            icon: iconMap[item.icon] || Settings,
-            children: item.children
-                ? transformMenuItems(item.children)
-                : undefined,
+            // Map icon string to icon component, fallback to SquareChartGantt if not found
+            icon: iconMap[item.icon] || SquareChartGantt,
+            // Recursively transform children if they exist
+            children:
+                item.children && Array.isArray(item.children)
+                    ? transformMenuItems(item.children)
+                    : undefined,
         }));
     };
 
     // Load menu structure on component mount
     useEffect(() => {
-        fetchMenuStructure();
+        fetchAndConcatMenu();
     }, []);
 
+    // Handle expanding/collapsing menu items
     const toggleExpanded = (itemId) => {
         setExpandedItems((prev) => ({
             ...prev,
@@ -198,9 +152,14 @@ const Sidebar = ({ collapsed, onToggle, activeFunction, onFunctionChange }) => {
         }));
     };
 
+    // Retry function for error state
+    const handleRetry = () => {
+        fetchAndConcatMenu();
+    };
+
     return (
         <aside
-            className={`bg-white shadow-lg border-r border-gray-200 transition-all duration-300 flex flex-col ${
+            className={`h-screen bg-white shadow-lg border-r border-gray-200 transition-all duration-300 flex flex-col ${
                 collapsed ? "w-16" : "w-80"
             }`}
         >
@@ -209,11 +168,15 @@ const Sidebar = ({ collapsed, onToggle, activeFunction, onFunctionChange }) => {
                 onClick={onToggle}
                 side="right"
             /> */}
-            <SidebarHeader collapsed={collapsed} onToggle={onToggle} />
 
-            {/* Tab Navigation */}
+            {/* Fixed Header */}
+            <div className="flex-shrink-0">
+                <SidebarHeader collapsed={collapsed} onToggle={onToggle} />
+            </div>
+
+            {/* Fixed Tab Navigation */}
             {!collapsed && (
-                <div className="flex border-b border-gray-200 bg-gray-50">
+                <div className="flex-shrink-0 flex border-b border-gray-200 bg-gray-50">
                     <button
                         className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                             activeTab === "management"
@@ -237,37 +200,36 @@ const Sidebar = ({ collapsed, onToggle, activeFunction, onFunctionChange }) => {
                 </div>
             )}
 
-            {/* Tab Content */}
-            <div className="flex-1 overflow-hidden">
+            {/* Scrollable Tab Content - Takes remaining space */}
+            <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTab === "management" ? (
-                    <div className="h-full overflow-y-auto">
-                        {isLoading ? (
-                            <SidebarLoading collapsed={collapsed} />
-                        ) : error ? (
-                            <SidebarError
-                                error={error}
-                                onRetry={fetchMenuStructure}
-                                collapsed={collapsed}
-                            />
-                        ) : (
-                            <SidebarMenu
-                                menuStructure={menuStructure}
-                                collapsed={collapsed}
-                                expandedItems={expandedItems}
-                                onToggleExpanded={toggleExpanded}
-                                activeFunction={activeFunction}
-                                onFunctionChange={onFunctionChange}
-                            />
-                        )}
-                    </div>
+                    isLoading ? (
+                        <LoadingEffect collapsed={collapsed} />
+                    ) : error ? (
+                        <ErrorEffect
+                            error={error}
+                            onRetry={handleRetry}
+                            collapsed={collapsed}
+                        />
+                    ) : (
+                        <TreeMenu
+                            menuStructure={menuStructure}
+                            collapsed={collapsed}
+                            expandedItems={expandedItems}
+                            onToggleExpanded={toggleExpanded}
+                            activeFunction={activeFunction}
+                            onFunctionChange={onFunctionChange}
+                        />
+                    )
                 ) : (
-                    <div className="h-full overflow-y-auto">
-                        <SearchResultTab collapsed={collapsed} />
-                    </div>
+                    <SearchResultTab collapsed={collapsed} />
                 )}
             </div>
 
-            {/* <SidebarFooter collapsed={collapsed} /> */}
+            {/* Uncomment if you want a fixed footer */}
+            {/* <div className="flex-shrink-0">
+                <SidebarFooter collapsed={collapsed} />
+            </div> */}
         </aside>
     );
 };

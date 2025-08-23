@@ -21,8 +21,9 @@ CREATE TABLE Area (
 CREATE TABLE Category (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    information TEXT,
-    category_id INTEGER REFERENCES Category(id) ON DELETE CASCADE,
+    description TEXT,
+    priority INT,
+    parent_id INTEGER REFERENCES Category(id) ON DELETE CASCADE,
     area_id INTEGER REFERENCES Area(id) ON DELETE CASCADE
 );
 

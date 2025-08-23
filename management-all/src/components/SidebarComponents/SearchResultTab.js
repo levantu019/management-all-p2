@@ -140,23 +140,27 @@ const SearchResultTab = ({ collapsed }) => {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <SearchSettingsSection
-        timeFrom={timeFrom}
-        setTimeFrom={setTimeFrom}
-        timeTo={timeTo}
-        setTimeTo={setTimeTo}
-        ai1ShowDrew={ai1ShowDrew}
-        setAi1ShowDrew={setAi1ShowDrew}
-        ai1ShowAll={ai1ShowAll}
-        setAi1ShowAll={setAi1ShowAll}
-        ai2ShowDrew={ai2ShowDrew}
-        setAi2ShowDrew={setAi2ShowDrew}
-        ai2ShowAll={ai2ShowAll}
-        setAi2ShowAll={setAi2ShowAll}
-      />
-      {/* Make SearchResultsSection scrollable when settings are expanded */}
-      <div className="flex-1 overflow-y-auto">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Fixed SearchSettingsSection - will expand/collapse but stays at top */}
+      <div className="flex-shrink-0">
+        <SearchSettingsSection
+          timeFrom={timeFrom}
+          setTimeFrom={setTimeFrom}
+          timeTo={timeTo}
+          setTimeTo={setTimeTo}
+          ai1ShowDrew={ai1ShowDrew}
+          setAi1ShowDrew={setAi1ShowDrew}
+          ai1ShowAll={ai1ShowAll}
+          setAi1ShowAll={setAi1ShowAll}
+          ai2ShowDrew={ai2ShowDrew}
+          setAi2ShowDrew={setAi2ShowDrew}
+          ai2ShowAll={ai2ShowAll}
+          setAi2ShowAll={setAi2ShowAll}
+        />
+      </div>
+      
+      {/* Flexible SearchResultsSection - takes remaining space and scrolls */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         <SearchResultsSection
           mockImages={mockImages}
           activeResultTab={activeResultTab}
